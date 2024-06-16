@@ -79,14 +79,26 @@ pub fn Result(comptime Ok: type, comptime Error: type) type {
             return std.meta.activeTag(self) == .err;
         }
 
+        fn getErrorSet(self: @This()) ErrorSet {
+            const active: ErrorTag = std.meta.activeTag(self.err);
+            const idx = std.mem.indexOfScalar(ErrorTag, &map.keys, active) orelse unreachable;
+            return map.values[idx];
+        }
+
         /// Unwrap the result, returning the value or the error as an error set.
         pub fn unwrap(self: @This()) ErrorSet!Ok {
             return switch (self) {
                 .ok => self.ok,
+                .err => self.getErrorSet(),
+            };
+        }
+
+        pub fn unwrapCapture(self: @This(), capture: *Error) ErrorSet!Ok {
+            return switch (self) {
+                .ok => self.ok,
                 .err => blk: {
-                    const active: ErrorTag = std.meta.activeTag(self.err);
-                    const idx = std.mem.indexOfScalar(ErrorTag, &map.keys, active) orelse unreachable;
-                    break :blk map.values[idx];
+                    capture.* = self.err;
+                    break :blk self.getErrorSet();
                 },
             };
         }
@@ -127,6 +139,9 @@ test "Result.ok" {
 
     try std.testing.expectEqual(42, result.unwrapOr(10));
     try std.testing.expectEqual(42, result.unwrapOrNull());
+
+    var capture: ErrorPayload = undefined;
+    try std.testing.expectEqual(42, result.unwrapCapture(&capture));
 }
 
 test "Result.err" {
@@ -150,4 +165,12 @@ test "Result.err" {
 
     try std.testing.expectEqual(10, result.unwrapOr(10));
     try std.testing.expectEqual(null, result.unwrapOrNull());
+
+    var capture: ErrorPayload = undefined;
+    _ = result.unwrapCapture(&capture) catch |err| {
+        _ = err catch {};
+        try std.testing.expectEqual(ResultType.ErrorSet.InvalidCharacter, err);
+        try std.testing.expectEqual('w', capture.InvalidCharacter);
+        return;
+    };
 }

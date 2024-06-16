@@ -11,6 +11,10 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
 
+    _ = b.addModule("zig-result", .{
+        .root_source_file = b.path("src/root.zig"),
+    });
+
     b.installArtifact(lib);
 
     const lib_unit_tests = b.addTest(.{
