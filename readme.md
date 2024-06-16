@@ -14,7 +14,7 @@ You can install the library by adding it to the build.zig.zon file, either manua
 .{
     ...
     .dependencies = .{
-        .zig-result = .{
+        .@"zig-result" = .{
             .url = "https://github.com/Remy2701/zig-result/archive/main.tar.gz",
             .hash = "...",
         }
