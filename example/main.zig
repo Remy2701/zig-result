@@ -14,4 +14,14 @@ pub fn main() !void {
 
     const value = try result.unwrap();
     std.debug.print("value: {d}\n", .{value});
+
+    const result2 = ResultType.err(ErrorPayload{
+        .InvalidCharacter = 'w',
+    });
+
+    var payload: ErrorPayload = undefined;
+    _ = result2.unwrapCapture(&payload) catch |err| blk: {
+        std.debug.print("Error: {s} / {}\n", .{ @errorName(err), payload });
+        break :blk 0; // Default value to use after
+    };
 }
