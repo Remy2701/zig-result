@@ -93,6 +93,7 @@ pub fn Result(comptime Ok: type, comptime Error: type) type {
             };
         }
 
+        /// Unwrap and catpure the error, returning the value or the error as an error set.
         pub fn unwrapCapture(self: @This(), capture: *Error) ErrorSet!Ok {
             return switch (self) {
                 .ok => self.ok,

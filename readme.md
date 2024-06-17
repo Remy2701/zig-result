@@ -72,6 +72,14 @@ pub fn main() !void {
 
     const value = try result.unwrap();
     std.debug.print("value: {d}\n", .{value});
+
+    unwrapCaptureExample: {
+        var payload: ErrorPayload = undefined;
+        _ = result2.unwrapCapture(&payload) catch |err| {
+            std.debug.print("Error: {s} / {}\n", .{ @errorName(err), payload });
+            break :unwrapCaptureExample;
+        };
+    }
 }
 ```
 

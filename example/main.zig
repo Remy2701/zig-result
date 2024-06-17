@@ -19,9 +19,11 @@ pub fn main() !void {
         .InvalidCharacter = 'w',
     });
 
-    var payload: ErrorPayload = undefined;
-    _ = result2.unwrapCapture(&payload) catch |err| blk: {
-        std.debug.print("Error: {s} / {}\n", .{ @errorName(err), payload });
-        break :blk 0; // Default value to use after
-    };
+    unwrapCaptureExample: {
+        var payload: ErrorPayload = undefined;
+        _ = result2.unwrapCapture(&payload) catch |err| {
+            std.debug.print("Error: {s} / {}\n", .{ @errorName(err), payload });
+            break :unwrapCaptureExample;
+        };
+    }
 }
